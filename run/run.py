@@ -12,7 +12,7 @@ from typing import Dict, List, Optional
 CONFIG_PATH = "config.json"
 DEFAULT_CONFIG = {
     "default_format": "epub",
-    "default_threads": 3,
+    "default_threads": 8,
     "api_timeout": 10,
     "show_colors": True,
     "save_cover": True
@@ -175,7 +175,7 @@ def build_epub(metadata: Dict, chapters: List[Dict], output_path: str):
     spine.append(disclaim_start)
 
     intro = epub.EpubHtml(title="书籍信息", file_name="intro.xhtml", lang="zh-CN")
-    intro.content = f"<h1>《{metadata['book_name']}》</h1><p><strong>作者：</strong>{metadata['author']}</p><p><strong>类型：</strong>{metadata['category']} | <strong>状态：</strong>{metadata['status']}</p><p><strong>简介：</strong>{metadata['summary'].replace('\n', '<br/>')}</p>"
+    intro.content = f"<h1>《{metadata['book_name']}》</h1><p><strong>作者：</strong>{metadata['author']}</p><p><strong>类型：</strong>{metadata['category']} | <strong>状态：</strong>{metadata['status']}</p><p><strong>简介：</strong>{metadata['summary'].replace('\\n', '<br/>')}</p>"
     book.add_item(intro)
     epub_chapters.append(intro)
     spine.append(intro)
