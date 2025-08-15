@@ -1,0 +1,55 @@
+name: Text Get
+
+on:
+  workflow_dispatch:
+    inputs:
+      book_id:
+        description: 'ID link'
+        required: true
+      format:
+        description: 'epub txt'
+        default: 'epub'
+        required: false
+      threads:
+        description: 'th'
+        default: '4'
+        required: false
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run downloader script for each book
+      run: |
+        IFS=',' read -ra ID_ARRAY <<< "${{ github.event.inputs.book_id }}"
+        
+        for id in "${ID_ARRAY[@]}"; do
+          echo "ID: $id"
+          python run/run.py "$id" \
+            --${{ github.event.inputs.format }} \
+            --threads=${{ github.event.inputs.threads }}
+        done
+    
+    - name: Package downloaded files
+      run: |
+        mkdir -p artifacts
+        zip -r artifacts/downloaded_books_${{ github.run_number }}.zip downloads/
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: downloaded-books-${{ github.run_number }}
+        path: artifacts/downloaded_books_${{ github.run_number }}.zip
