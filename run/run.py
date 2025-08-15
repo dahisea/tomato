@@ -75,7 +75,7 @@ def get_book_metadata(book_id: str) -> Dict:
     }
 
     try:
-        api_url = "https://toma.jam.cz.eu.org/info/"
+        api_url = "https://toma.jam.cz.eu.org.cdn.cloudflare.net/info/"
         params = {
             "aid": "1967",
             "iid": "1",
@@ -112,7 +112,7 @@ def get_book_metadata(book_id: str) -> Dict:
     return metadata
 
 def get_chapter_list(book_id: str) -> List[Dict]:
-    url = f"https://toma.jam.cz.eu.org/directory?bookId={book_id}"
+    url = f"https://toma.jam.cz.eu.org.cdn.cloudflare.net/directory?bookId={book_id}"
     try:
         resp = session.get(url, timeout=config["api_timeout"])
         data = resp.json()
@@ -127,7 +127,7 @@ def get_chapter_list(book_id: str) -> List[Dict]:
     sys.exit(1)
 
 def download_chapter(item_id: str) -> Optional[str]:
-    url = "https://toma.jam.cz.eu.org/down/"
+    url = "https://toma.jam.cz.eu.org.cdn.cloudflare.net/down/"
     params = {"item_id": item_id, "novelsdk_aid": "638505", "sdk_type": "4"}
     try:
         resp = session.post(url, params=params, timeout=(5, 15))
