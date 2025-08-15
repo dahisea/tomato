@@ -134,7 +134,7 @@ def download_chapter(item_id: str) -> Optional[str]:
         data = resp.json()
         if data.get("code") == 0 and "content" in data.get("data", {}):
             content = data["data"]["content"]
-            clean_content = content.replace('</p>', '\n').replace('&quot;', '"').replace('&amp;', '&')
+            clean_content = content.replace('<p>', '\n').replace('</p>', '\n').replace('&quot;', '"').replace('&amp;', '&')
             return re.sub(r'<p idx="\d+"\u003e', '', clean_content).strip()
     except:
         pass
