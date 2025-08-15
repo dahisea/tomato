@@ -190,7 +190,11 @@ def build_epub(metadata: Dict, chapters: List[Dict], output_path: str):
         if not chap["content"]:
             continue
         c = epub.EpubHtml(title=f"第{i+1}章：{chap['title']}", file_name=f"chap_{i+1}.xhtml", lang="zh-CN")
-        c.content = f"<h2>第{i+1}章：{chap['title']}</h2><p>{chap['content'].replace('\n', '<br/>')}</p>"
+        c.content = "<h2>第{}章：{}</h2><p>{}</p>".format(
+    i + 1,
+    chap['title'],
+    chap['content'].replace('\n', '<br/>')
+)
         book.add_item(c)
         epub_chapters.append(c)
         spine.append(c)
