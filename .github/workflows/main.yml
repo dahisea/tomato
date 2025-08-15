@@ -45,11 +45,10 @@ jobs:
     
     - name: Package downloaded files
       run: |
-        mkdir -p artifacts
-        zip -r artifacts/downloaded_books_${{ github.run_number }}.zip run/downloads/
+        zip -r downloaded_books_${{ github.run_number }}.zip run/download
     
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: downloaded-books-${{ github.run_number }}
-        path: artifacts/downloaded_books_${{ github.run_number }}.zip
+        path: downloaded_books_${{ github.run_number }}.zip
