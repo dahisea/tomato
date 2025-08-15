@@ -93,7 +93,7 @@ def get_book_metadata(book_id: str) -> Dict:
             metadata["summary"] = book_data.get("abstract", metadata["summary"])
             metadata["cover_url"] = book_data.get("bookshelf_thumb_url") or book_data.get("thumb_url", "")
             metadata["category"] = book_data.get("category", metadata["category"])
-            metadata["status"] = "连载中" if book_data.get("update_status") == 1 else "已完结"
+            metadata["status"] = "连载中" if book_data.get("update_status") == "1" else "已完结"
             if book_data.get("word_count"):
                 metadata["word_count"] = f"{book_data['word_count']/10000:.1f}万字"
             metadata["readers"] = book_data.get("sub_info", metadata["readers"])
