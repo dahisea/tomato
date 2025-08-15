@@ -8,11 +8,10 @@ from tqdm import tqdm
 from ebooklib import epub
 from typing import Dict, List, Optional
 
-# 配置文件路径和默认配置
 CONFIG_PATH = "config.json"
 DEFAULT_CONFIG = {
     "default_format": "epub",
-    "default_threads": 8,
+    "default_threads": 4,
     "api_timeout": 10,
     "show_colors": True,
     "save_cover": True
@@ -76,7 +75,7 @@ def get_book_metadata(book_id: str) -> Dict:
     }
 
     try:
-        api_url = "https://api5-normal-sinfonlineb.fqnovel.com/reading/bookapi/multi-detail/v/"
+        api_url = "https://toma.jam.cz.eu.org/info/"
         params = {
             "aid": "1967",
             "iid": "1",
@@ -94,7 +93,7 @@ def get_book_metadata(book_id: str) -> Dict:
             metadata["summary"] = book_data.get("abstract", metadata["summary"])
             metadata["cover_url"] = book_data.get("bookshelf_thumb_url") or book_data.get("thumb_url", "")
             metadata["category"] = book_data.get("category", metadata["category"])
-            metadata["status"] = "连载中" if book_data.get("serial_status") == 1 else "已完结"
+            metadata["status"] = "连载中" if book_data.get("update_status") == 1 else "已完结"
             if book_data.get("word_count"):
                 metadata["word_count"] = f"{book_data['word_count']/10000:.1f}万字"
             metadata["readers"] = book_data.get("sub_info", metadata["readers"])
@@ -102,18 +101,18 @@ def get_book_metadata(book_id: str) -> Dict:
             if metadata["book_name"].startswith("《") and metadata["book_name"].endswith("》"):
                 metadata["book_name"] = metadata["book_name"][1:-1]
         else:
-            print(Colors.wrap("API获取书籍信息失败", Colors.RED))
+            print(Colors.wrap("API获取Text信息失败", Colors.RED))
             sys.exit(1)
 
     except Exception as e:
-        print(f"{Colors.wrap('获取书籍信息失败', Colors.RED)}: {str(e)}")
+        print(f"{Colors.wrap('获取Text信息失败', Colors.RED)}: {str(e)}")
         sys.exit(1)
 
     book_info_cache[book_id] = metadata
     return metadata
 
 def get_chapter_list(book_id: str) -> List[Dict]:
-    url = f"https://fanqienovel.com/api/reader/directory/detail?bookId={book_id}"
+    url = f"https://toma.jam.cz.eu.org/directory?bookId={book_id}"
     try:
         resp = session.get(url, timeout=config["api_timeout"])
         data = resp.json()
@@ -128,7 +127,7 @@ def get_chapter_list(book_id: str) -> List[Dict]:
     sys.exit(1)
 
 def download_chapter(item_id: str) -> Optional[str]:
-    url = "https://api-sinfonlinea.fanqiesdk.com/open_sdk/reader/content/v1"
+    url = "https://toma.jam.cz.eu.org/down/"
     params = {"item_id": item_id, "novelsdk_aid": "638505", "sdk_type": "4"}
     try:
         resp = session.post(url, params=params, timeout=(5, 15))
@@ -174,7 +173,7 @@ def build_epub(metadata: Dict, chapters: List[Dict], output_path: str):
     epub_chapters.append(disclaim_start)
     spine.append(disclaim_start)
 
-    intro = epub.EpubHtml(title="书籍信息", file_name="intro.xhtml", lang="zh-CN")
+    intro = epub.EpubHtml(title="Text信息", file_name="intro.xhtml", lang="zh-CN")
     intro.content = "<h1>《{}》</h1><p><strong>作者：</strong>{}</p><p><strong>类型：</strong>{} | <strong>状态：</strong>{}</p><p><strong>简介：</strong>{}</p>".format(
     metadata['book_name'],
     metadata['author'],
@@ -213,7 +212,7 @@ def build_epub(metadata: Dict, chapters: List[Dict], output_path: str):
     print(f"{Colors.wrap('EPUB生成成功', Colors.GREEN)}：{output_path}")
 
 def download_novel(book_id: str):
-    print(f"\n{Colors.wrap('===== 书籍信息 =====', Colors.BLUE)}")
+    print(f"\n{Colors.wrap('===== Text信息 =====', Colors.BLUE)}")
     metadata = get_book_metadata(book_id)
     print(f"书名：{Colors.wrap(metadata['book_name'], Colors.PURPLE)}")
     print(f"作者：{metadata['author']}")
@@ -252,12 +251,12 @@ def download_novel(book_id: str):
 
 def main():
     if len(sys.argv) < 2:
-        print("用法: python downloader.py <书籍ID或链接> [--epub|--txt] [--threads=N]")
+        print("用法: python downloader.py <TextID或链接> [--epub|--txt] [--threads=N]")
         sys.exit(1)
 
     book_id = extract_book_id_from_url(sys.argv[1])
     if not book_id:
-        print(Colors.wrap("无法解析书籍ID，请检查输入", Colors.RED))
+        print(Colors.wrap("无法解析TextID，请检查输入", Colors.RED))
         sys.exit(1)
 
     for arg in sys.argv[2:]:
