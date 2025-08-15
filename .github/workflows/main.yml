@@ -45,7 +45,8 @@ jobs:
     
     - name: Package downloaded files
       run: |
-        zip -r downloaded_books_${{ github.run_number }}.zip run/download
+        ls
+        zip -r downloaded_books_${{ github.run_number }}.zip ./run/download/
     
     - name: Upload artifact
       uses: actions/upload-artifact@v4
